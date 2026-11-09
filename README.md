@@ -38,6 +38,18 @@
 - Vite
 - Docker（Laravel Sail）/ phpMyAdmin / Mailpit
 
+## 開発状況
+
+| 項目 | 状況 |
+| --- | --- |
+| 環境構築（Docker / Sail） | 完了 |
+| Fortify 導入 | 完了（会員登録・ログインのビューを設定済み） |
+| DB設計（マイグレーション） | 完了（users / attendances / break_times / stamp_requests / stamp_breaks） |
+| モデル・リレーション | 完了 |
+| Seeder（テストアカウント・勤怠ダミーデータ） | 完了 |
+| 画面（PG01〜PG13）のルート・コントローラ・処理 | 未実装（ビューと CSS のみ作成済み） |
+| ★ PG14 マイ勤怠レポート（応用） | 対象外（現時点では実装しない） |
+
 ## ER図
 
 ![ER図](./er_diagram.drawio.png)
@@ -50,6 +62,10 @@
 | --- | --- | --- | --- |
 | 管理者 | admin | admin123@gmail.com | 12345678 |
 | 一般ユーザー | user | user123@gmail.com | 12345678 |
+| 一般ユーザー | user2 | user2@example.com | 12345678 |
+| 一般ユーザー | user3 | user3@example.com | 12345678 |
+
+一般ユーザーには、直近60日間の平日分の勤怠・休憩ダミーデータ（今日の分を除く）が登録されます。
 
 ## 画面一覧
 
