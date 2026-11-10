@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -48,4 +49,30 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    protected function adminStatus(): Attribute
+    {
+        return Attribute::get(fn () => $this->role === self::ROLE_ADMIN);
+    }
+
+    protected function attendanceStatus(): Attribute
+    {
+        return Attribute::get(function () {
+            $attendance = $this->attendances()
+                ->whereDate('work_date', today())
+                ->with('breakTimes')
+                ->first();
+
+            if (! $attendance || ! $attendance->clock_in) {
+                return '勤務外';
+            }
+
+            if ($attendance->clock_out) {
+                return '退勤済';
+            }
+
+            // 終了していない休憩があれば休憩中
+            return $attendance->breakTimes->whereNull('break_end')->isNotEmpty() ? '休憩中' : '出勤中';
+        })->shouldCache();
+    }
 }

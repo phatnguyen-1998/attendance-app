@@ -19,6 +19,7 @@ class AttendanceSeeder extends Seeder
 
         if ($users->isEmpty()) {
             $this->command?->warn('一般ユーザーが存在しないためスキップしました。先に UserSeeder を実行してください。');
+
             return;
         }
 

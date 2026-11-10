@@ -15,7 +15,7 @@
         -u "$(id -u):$(id -g)" \
         -v "$(pwd):/var/www/html" \
         -w /var/www/html \
-        laravelsail/php84-composer:latest \
+        laravelsail/php82-composer:latest \
         composer install --ignore-platform-reqs
     ```
 
@@ -60,10 +60,9 @@
 
 | 種別 | 名前 | メールアドレス | パスワード |
 | --- | --- | --- | --- |
-| 管理者 | admin | admin123@gmail.com | 12345678 |
-| 一般ユーザー | user | user123@gmail.com | 12345678 |
-| 一般ユーザー | user2 | user2@example.com | 12345678 |
-| 一般ユーザー | user3 | user3@example.com | 12345678 |
+| 管理者 | ユーザー３（管理者） | user3@example.com | password |
+| 一般ユーザー | ユーザー１（一般） | user1@example.com | password |
+| 一般ユーザー | ユーザー２（一般） | user2@example.com | password |
 
 一般ユーザーには、直近60日間の平日分の勤怠・休憩ダミーデータ（今日の分を除く）が登録されます。
 
