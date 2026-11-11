@@ -14,7 +14,9 @@ class AttendanceController extends Controller
     public function index(Request $request): View
     {
         // ?date=YYYY-MM-DD。未指定・不正な値は今日にする
-        $date = Carbon::make($request->query('date'))?->startOfDay() ?? today();
+        $date = Validator::make($request->query(), ['date' => 'required|date_format:Y-m-d'])->passes()
+            ? Carbon::createFromFormat('!Y-m-d', $request->query('date'))
+            : today();
 
         return view('admin.admin-attendance-list', [
             'date' => $date,

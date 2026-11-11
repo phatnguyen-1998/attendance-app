@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('attendance_id')->constrained()->cascadeOnDelete();
-            $table->time('requested_clock_in');
-            $table->time('requested_clock_out');
-            $table->string('note', 255);
+            $table->time('new_clock_in');
+            $table->time('new_clock_out');
+            $table->string('comment', 255);
             // 承認状態（0: 承認待ち, 1: 承認済み）
             $table->unsignedTinyInteger('status')->default(0);
             $table->timestamp('approved_at')->nullable();
