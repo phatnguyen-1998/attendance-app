@@ -52,15 +52,15 @@ class AttendanceSeeder extends Seeder
 
                 // 昼休憩
                 $attendance->breakTimes()->create([
-                    'break_start' => '12:00:00',
-                    'break_end' => '13:00:00',
+                    'break_in' => '12:00:00',
+                    'break_out' => '13:00:00',
                 ]);
 
                 // 5の倍数の日は午後にもう1回休憩
                 if ($day % 5 === 0) {
                     $attendance->breakTimes()->create([
-                        'break_start' => '15:00:00',
-                        'break_end' => '15:15:00',
+                        'break_in' => '15:00:00',
+                        'break_out' => '15:15:00',
                     ]);
                 }
             }

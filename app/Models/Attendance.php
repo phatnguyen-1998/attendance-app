@@ -60,7 +60,13 @@ class Attendance extends Model
     private function breakSeconds(): int
     {
         return $this->breakTimes
-            ->filter(fn ($break) => $break->break_end)
-            ->sum(fn ($break) => Carbon::parse($break->break_start)->diffInSeconds(Carbon::parse($break->break_end)));
+            ->filter(fn ($break) => $break->break_out)
+            ->sum(fn ($break) => Carbon::parse($break->break_in)->diffInSeconds(Carbon::parse($break->break_out)));
+    }
+
+    /** 提供Bladeの `$application->AttendanceRecord->date` に合わせた勤怠日（work_date） */
+    protected function date(): Attribute
+    {
+        return Attribute::get(fn () => $this->work_date);
     }
 }

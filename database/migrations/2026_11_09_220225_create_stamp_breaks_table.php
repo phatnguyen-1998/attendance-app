@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('stamp_breaks', function (Blueprint $table) {
             $table->id();
             $table->foreignId('stamp_request_id')->constrained()->cascadeOnDelete();
-            $table->time('break_start');
-            $table->time('break_end');
+            $table->time('break_in');
+            $table->time('break_out');
             $table->timestamps();
         });
     }

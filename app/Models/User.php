@@ -72,7 +72,7 @@ class User extends Authenticatable
             }
 
             // 終了していない休憩があれば休憩中
-            return $attendance->breakTimes->whereNull('break_end')->isNotEmpty() ? '休憩中' : '出勤中';
+            return $attendance->breakTimes->whereNull('break_out')->isNotEmpty() ? '休憩中' : '出勤中';
         })->shouldCache();
     }
 }

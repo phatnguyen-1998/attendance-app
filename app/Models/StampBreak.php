@@ -10,7 +10,7 @@ class StampBreak extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['stamp_request_id', 'break_start', 'break_end'];
+    protected $fillable = ['stamp_request_id', 'break_in', 'break_out'];
 
     public function stampRequest(): BelongsTo
     {
