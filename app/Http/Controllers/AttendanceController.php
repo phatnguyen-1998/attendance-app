@@ -1,18 +1,18 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Http\Requests\AttendanceUpdateRequest;
+use App\Models\StampRequest;
+use Carbon\Exceptions\InvalidFormatException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Carbon\Exceptions\InvalidFormatException;
-use App\Models\StampRequest;
-use App\Http\Requests\AttendanceUpdateRequest;
 use Illuminate\Support\Facades\DB;
 
 class AttendanceController extends Controller
 {
-
     public function index(Request $request): View
     {
         $now = now();
@@ -28,7 +28,7 @@ class AttendanceController extends Controller
     {
         $user = $request->user();
         $status = $user->attendance_status;
-        $time = now()->format('H:i:00');// 秒は切り捨てる
+        $time = now()->format('H:i:00'); // 秒は切り捨てる
         $attendance = $user->attendances()->whereDate('work_date', today())->first();
 
         match ($request->input('action')) {
@@ -49,6 +49,7 @@ class AttendanceController extends Controller
 
         return redirect()->route('attendance.index');
     }
+
     public function list(Request $request): View
     {
         $month = $this->parseMonth($request->query('date'));
@@ -57,7 +58,7 @@ class AttendanceController extends Controller
             ->with('breakTimes')
             ->whereBetween('work_date', [$month->toDateString(), $month->copy()->endOfMonth()->toDateString()])
             ->get()
-            ->keyBy(fn($attendance) => $attendance->work_date->toDateString());
+            ->keyBy(fn ($attendance) => $attendance->work_date->toDateString());
 
         $records = collect(range(1, $month->daysInMonth))->map(function (int $day) use ($month, $attendances) {
             $date = $month->copy()->day($day);
@@ -93,6 +94,7 @@ class AttendanceController extends Controller
         // 2026-13 のようにあふれた値は不正として扱う
         return $month->format('Y-m') === $value ? $month : today()->startOfMonth();
     }
+
     public function show(Request $request, $id): View
     {
         $user = $request->user();
@@ -107,7 +109,7 @@ class AttendanceController extends Controller
             ->first();
 
         $breaks = ($pending ? $pending->proposalBreaks : $attendance->breakTimes)
-            ->map(fn($break) => [
+            ->map(fn ($break) => [
                 'break_in' => substr($break->break_in, 0, 5),
                 'break_out' => $break->break_out ? substr($break->break_out, 0, 5) : '',
             ])
@@ -128,6 +130,7 @@ class AttendanceController extends Controller
             ],
         ]);
     }
+
     public function update(AttendanceUpdateRequest $request, $id): RedirectResponse
     {
         $attendance = $request->user()->attendances()->findOrFail($id);
@@ -158,6 +161,4 @@ class AttendanceController extends Controller
 
         return redirect()->route('attendance.show', $attendance->id);
     }
-
 }
-
