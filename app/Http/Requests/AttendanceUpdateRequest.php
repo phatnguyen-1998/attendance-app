@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -18,7 +19,7 @@ class AttendanceUpdateRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -33,6 +34,7 @@ class AttendanceUpdateRequest extends FormRequest
             'comment' => ['required'],
         ];
     }
+
     public function messages(): array
     {
         $clock = '出勤時間もしくは退勤時間が不適切な値です';
@@ -49,6 +51,7 @@ class AttendanceUpdateRequest extends FormRequest
             'comment.required' => '備考を記入してください',
         ];
     }
+
     private function clockRangeIsValid(): bool
     {
         $in = strtotime((string) $this->new_clock_in);
