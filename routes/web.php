@@ -27,8 +27,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
     Route::post('/attendance', [AttendanceController::class, 'store'])->name('attendance.store');
     Route::get('/attendance/list', [AttendanceController::class, 'list'])->name('attendance.list');
-    Route::get('/attendance/detail/{id}', [AttendanceController::class, 'show'])->name('attendance.show');
-    Route::post('/attendance/detail/{id}', [AttendanceController::class, 'update'])->name('attendance.update');
+    // 勤怠詳細・修正は一般ユーザーと管理者で共通のパス（提供Bladeに合わせる。コントローラー内で role を見て処理を切り替える）
+    Route::get('/attendance/{id}', [AttendanceController::class, 'show'])->name('attendance.show');
+    Route::post('/attendance/{id}', [AttendanceController::class, 'update'])->name('attendance.update');
     Route::get('/stamp_correction_request/list', [StampRequestController::class, 'index'])
         ->name('stamp_correction_request.list');
 });
@@ -43,8 +44,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('/attendance/list', [AdminAttendanceController::class, 'index'])->name('attendance.list');
         Route::get('/attendance/staff/{id}', [StaffController::class, 'staff'])->name('attendance.staff');
-        Route::get('/attendance/{id}', [AdminAttendanceController::class, 'show'])->name('attendance.show');
-        Route::post('/attendance/{id}', [AdminAttendanceController::class, 'update'])->name('attendance.update');
         Route::get('/staff/list', [StaffController::class, 'index'])->name('staff.list');
         Route::post('/logout', [AdminAuthenticatedSessionController::class, 'destroy'])->name('logout');
 
