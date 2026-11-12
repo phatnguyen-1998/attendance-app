@@ -47,7 +47,9 @@
 | DB設計（マイグレーション） | 完了（users / attendances / break_times / stamp_requests / stamp_breaks） |
 | モデル・リレーション | 完了 |
 | Seeder（テストアカウント・勤怠ダミーデータ） | 完了 |
-| 画面（PG01〜PG13）のルート・コントローラ・処理 | 未実装（ビューと CSS のみ作成済み） |
+| 認証（PG01 会員登録・PG02 ログイン・PG07 管理者ログイン）とログアウト | 完了 |
+| 勤怠登録（PG03）・勤怠一覧（PG04）・管理者の勤怠一覧（PG08） | 完了 |
+| 勤怠詳細・修正申請・申請一覧・承認・スタッフ一覧（PG05, PG06, PG09〜PG13） | 未実装（ルートの定義とビュー・CSS のみ作成済み） |
 | ★ PG14 マイ勤怠レポート（応用） | 対象外（現時点では実装しない） |
 
 ## ER図
@@ -74,11 +76,11 @@
 | PG02 | ログイン画面（一般ユーザー） | /login |
 | PG03 | 勤怠登録画面（一般ユーザー） | /attendance |
 | PG04 | 勤怠一覧画面（一般ユーザー） | /attendance/list |
-| PG05 | 勤怠詳細画面（一般ユーザー） | /attendance/detail/{id} |
+| PG05 | 勤怠詳細画面（一般ユーザー） | /attendance/{id} |
 | PG06 | 申請一覧画面（一般ユーザー） | /stamp_correction_request/list |
 | PG07 | ログイン画面（管理者） | /admin/login |
 | PG08 | 勤怠一覧画面（管理者） | /admin/attendance/list |
-| PG09 | 勤怠詳細画面（管理者） | /admin/attendance/{id} |
+| PG09 | 勤怠詳細画面（管理者） | /attendance/{id}（一般ユーザーと同じパス。認証ミドルウェアで区別） |
 | PG10 | スタッフ一覧画面（管理者） | /admin/staff/list |
 | PG11 | スタッフ別勤怠一覧画面（管理者） | /admin/attendance/staff/{id} |
 | PG12 | 申請一覧画面（管理者） | /stamp_correction_request/list（一般ユーザーと同じパス。認証ミドルウェアで区別） |
