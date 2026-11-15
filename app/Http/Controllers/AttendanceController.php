@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Admin\AttendanceController as AdminAttendanceController;
 use App\Http\Requests\AttendanceUpdateRequest;
 use App\Models\StampRequest;
+use App\Models\User;
 use Carbon\Exceptions\InvalidFormatException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -97,6 +99,10 @@ class AttendanceController extends Controller
 
     public function show(Request $request, $id): View
     {
+        // 管理者は管理者用の勤怠詳細（PG09）で処理する
+        if ($request->user()->role === User::ROLE_ADMIN) {
+            return app(AdminAttendanceController::class)->show($request, $id);
+        }
         $user = $request->user();
         // 自分の勤怠のみ閲覧可（他人の ID は 404）
         $attendance = $user->attendances()->with('breakTimes')->findOrFail($id);
@@ -133,6 +139,9 @@ class AttendanceController extends Controller
 
     public function update(AttendanceUpdateRequest $request, $id): RedirectResponse
     {
+        if ($request->user()->role === User::ROLE_ADMIN) {
+            return app(AdminAttendanceController::class)->update($request, $id);
+        }
         $attendance = $request->user()->attendances()->findOrFail($id);
 
         // 承認待ちの申請がある間は修正できない（FN027）

@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AttendanceUpdateRequest;
 use App\Models\Attendance;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class AttendanceController extends Controller
@@ -26,5 +29,56 @@ class AttendanceController extends Controller
             'users' => User::where('role', User::ROLE_USER)->orderBy('id')->get(),
             'attendanceRecords' => Attendance::with('breakTimes')->whereDate('work_date', $date)->get(),
         ]);
+    }
+
+    public function show(Request $request, $id): View
+    {
+        $attendance = Attendance::with(['user', 'breakTimes'])->findOrFail($id);
+
+        $user = $attendance->user;
+
+        $attendanceRecord = [
+            'id' => $attendance->id,
+            'year' => $attendance->work_date->format('Y年'),
+            'date' => $attendance->work_date->format('n月j日'),
+            'clock_in' => substr($attendance->clock_in, 0, 5),
+            'clock_out' => substr($attendance->clock_out ?? '', 0, 5),
+            'breaks' => $attendance->breakTimes
+                ->map(fn ($break) => [
+                    'break_in' => substr($break->break_in, 0, 5),
+                    'break_out' => $break->break_out ? substr($break->break_out, 0, 5) : '',
+                ])
+                ->values()
+                ->all(),
+            'comment' => $attendance->note,
+        ];
+
+        return view('admin.admin-detail', compact('user', 'attendanceRecord'));
+    }
+
+    public function update(AttendanceUpdateRequest $request, $id): RedirectResponse
+    {
+        $attendance = Attendance::findOrFail($id);
+
+        DB::transaction(function () use ($request, $attendance) {
+            $attendance->update([
+                'clock_in' => $request->input('new_clock_in'),
+                'clock_out' => $request->input('new_clock_out'),
+                'note' => $request->input('comment'),
+            ]);
+
+            // 休憩は入力内容で置き換える（開始・終了の両方が入力された行のみ保存）
+            $attendance->breakTimes()->delete();
+
+            foreach ($request->input('new_break_in', []) as $index => $breakIn) {
+                $breakOut = $request->input("new_break_out.$index");
+
+                if ($breakIn && $breakOut) {
+                    $attendance->breakTimes()->create(['break_in' => $breakIn, 'break_out' => $breakOut]);
+                }
+            }
+        });
+
+        return redirect()->route('attendance.show', $attendance->id);
     }
 }

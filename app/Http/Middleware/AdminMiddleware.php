@@ -16,8 +16,9 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // 管理者以外（一般ユーザー）は自分の打刻画面へ戻す
         if ($request->user()?->role !== User::ROLE_ADMIN) {
-            abort(403);
+            return redirect()->route('attendance.index');
         }
 
         return $next($request);
