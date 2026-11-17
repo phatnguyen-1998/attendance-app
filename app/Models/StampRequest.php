@@ -65,4 +65,15 @@ class StampRequest extends Model
     {
         return Attribute::get(fn () => $this->created_at);
     }
+
+    /** 提供Bladeが値をそのまま表示するため、秒を除いた H:i で返す */
+    protected function newClockIn(): Attribute
+    {
+        return Attribute::get(fn ($value) => $value ? substr($value, 0, 5) : $value);
+    }
+
+    protected function newClockOut(): Attribute
+    {
+        return Attribute::get(fn ($value) => $value ? substr($value, 0, 5) : $value);
+    }
 }
