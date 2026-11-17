@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Admin\StampRequestController as AdminStampRequestController;
+use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -10,6 +12,10 @@ class StampRequestController extends Controller
 {
     public function index(Request $request): View
     {
+        // 管理者は全ユーザーの申請一覧（PG12）を表示する
+        if ($request->user()->role === User::ROLE_ADMIN) {
+            return app(AdminStampRequestController::class)->index();
+        }
         $user = $request->user();
 
         $formattedApplications = $user->stampRequests()
