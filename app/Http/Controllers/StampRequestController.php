@@ -9,7 +9,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class StampRequestController extends Controller
-{
+{/** 申請一覧。管理者は全ユーザー分（PG12）、一般ユーザーは自分の申請（FN031・FN032） */
+
     public function index(Request $request): View
     {
         // 管理者は全ユーザーの申請一覧（PG12）を表示する
@@ -22,7 +23,7 @@ class StampRequestController extends Controller
             ->with('AttendanceRecord')
             ->latest()
             ->get()
-            ->map(fn ($application) => [
+            ->map(fn($application) => [
                 'id' => $application->id,
                 'approval_status' => $application->approval_status,
                 'date' => $application->new_date->format('Y/m/d'),
@@ -32,6 +33,7 @@ class StampRequestController extends Controller
 
         return view('user.user-application-list', compact('user', 'formattedApplications'));
     }
+    /** 申請の詳細リンクから、対象の勤怠詳細へリダイレクトする（FN033） */
 
     public function show(Request $request, string $id): RedirectResponse
     {

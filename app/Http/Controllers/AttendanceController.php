@@ -14,7 +14,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class AttendanceController extends Controller
-{
+{/** 打刻画面を表示する（現在の日時とステータスを渡す）（FN018・FN019） */
     public function index(Request $request): View
     {
         $now = now();
@@ -25,7 +25,11 @@ class AttendanceController extends Controller
             'formattedTime' => $now->format('H:i'),
         ]);
     }
-
+    /**
+     * 打刻処理（出勤・休憩入・休憩戻・退勤）を行う（FN020〜FN022）
+     *
+     * ステータスに合わない操作（例：勤務外での退勤）は何もしない。
+     */
     public function store(Request $request): RedirectResponse
     {
         $user = $request->user();
@@ -51,6 +55,7 @@ class AttendanceController extends Controller
 
         return redirect()->route('attendance.index');
     }
+    /** ログインユーザーの月次勤怠一覧を表示する。?date=YYYY-MM で月を指定（FN023・FN024） */
 
     public function list(Request $request): View
     {
@@ -60,7 +65,7 @@ class AttendanceController extends Controller
             ->with('breakTimes')
             ->whereBetween('work_date', [$month->toDateString(), $month->copy()->endOfMonth()->toDateString()])
             ->get()
-            ->keyBy(fn ($attendance) => $attendance->work_date->toDateString());
+            ->keyBy(fn($attendance) => $attendance->work_date->toDateString());
 
         $records = collect(range(1, $month->daysInMonth))->map(function (int $day) use ($month, $attendances) {
             $date = $month->copy()->day($day);
@@ -96,7 +101,13 @@ class AttendanceController extends Controller
         // 2026-13 のようにあふれた値は不正として扱う
         return $month->format('Y-m') === $value ? $month : today()->startOfMonth();
     }
-
+    /**
+     * 勤怠詳細を表示する（FN026）
+     *
+     * 管理者は管理者用の詳細（PG09）に委譲する。一般ユーザーは自分の勤怠のみ（他人の ID は 404）。
+     *
+     * @param  string  $id  勤怠ID
+     */
     public function show(Request $request, string $id): View
     {
         // 管理者は管理者用の勤怠詳細（PG09）で処理する
@@ -115,7 +126,7 @@ class AttendanceController extends Controller
             ->first();
 
         $breaks = ($pending ? $pending->proposalBreaks : $attendance->breakTimes)
-            ->map(fn ($break) => [
+            ->map(fn($break) => [
                 'break_in' => substr($break->break_in, 0, 5),
                 'break_out' => $break->break_out ? substr($break->break_out, 0, 5) : '',
             ])
@@ -136,7 +147,13 @@ class AttendanceController extends Controller
             ],
         ]);
     }
-
+    /**
+     * 勤怠の修正を行う（FN030）
+     *
+     * 管理者は直接修正、一般ユーザーは承認待ちの修正申請を作成する。承認待ちの申請がある間は何もしない。
+     *
+     * @param  string  $id  勤怠ID
+     */
     public function update(AttendanceUpdateRequest $request, string $id): RedirectResponse
     {
         if ($request->user()->role === User::ROLE_ADMIN) {
@@ -160,6 +177,7 @@ class AttendanceController extends Controller
 
             // 開始・終了の両方が入力された休憩のみ保存する
             $stampRequest->proposalBreaks()->createMany($request->breakTimes()->all());
+
         });
 
         return redirect()->route('attendance.show', $attendance->id);

@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class AttendanceController extends Controller
-{
+{/** 日次勤怠一覧（管理者）。?date=YYYY-MM-DD で日付を指定し、未指定は今日（FN034・FN035） */
+
     public function index(Request $request): View
     {
         // ?date=YYYY-MM-DD。未指定・不正な値は今日にする
@@ -30,6 +31,7 @@ class AttendanceController extends Controller
             'attendanceRecords' => Attendance::with('breakTimes')->whereDate('work_date', $date)->get(),
         ]);
     }
+    /** 勤怠詳細（管理者）（PG09・FN037） */
 
     public function show(Request $request, string $id): View
     {
@@ -44,7 +46,7 @@ class AttendanceController extends Controller
             'clock_in' => substr($attendance->clock_in, 0, 5),
             'clock_out' => substr($attendance->clock_out ?? '', 0, 5),
             'breaks' => $attendance->breakTimes
-                ->map(fn ($break) => [
+                ->map(fn($break) => [
                     'break_in' => substr($break->break_in, 0, 5),
                     'break_out' => $break->break_out ? substr($break->break_out, 0, 5) : '',
                 ])
@@ -55,6 +57,7 @@ class AttendanceController extends Controller
 
         return view('admin.admin-detail', compact('user', 'attendanceRecord'));
     }
+    /** 勤怠を直接修正し、休憩は入力内容で置き換える（FN040） */
 
     public function update(AttendanceUpdateRequest $request, string $id): RedirectResponse
     {
@@ -70,6 +73,7 @@ class AttendanceController extends Controller
             // 休憩は入力内容で置き換える（開始・終了の両方が入力された行のみ保存）
             $attendance->breakTimes()->delete();
             $attendance->breakTimes()->createMany($request->breakTimes()->all());
+
         });
 
         return redirect()->route('attendance.show', $attendance->id);

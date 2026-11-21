@@ -10,7 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
 class StaffController extends Controller
-{
+{/** スタッフ一覧（管理者）。一般ユーザーのみ表示する（FN041） */
+
     public function index(): View
     {
         // 一般ユーザーのみ表示する（管理者は含めない）
@@ -18,7 +19,11 @@ class StaffController extends Controller
 
         return view('admin.staff-list', compact('users'));
     }
-
+    /**
+     * スタッフ別の月次勤怠一覧を1日1行で表示する（FN043・FN044）
+     *
+     * 一般ユーザー以外・存在しない ID は 404。
+     */
     public function staff(Request $request, string $id): View
     {
         // 一般ユーザーのみ対象（管理者・存在しない ID は 404）
@@ -32,7 +37,7 @@ class StaffController extends Controller
             ->with('breakTimes')
             ->whereBetween('work_date', [$date->toDateString(), $date->copy()->endOfMonth()->toDateString()])
             ->get()
-            ->keyBy(fn ($attendance) => $attendance->work_date->toDateString());
+            ->keyBy(fn($attendance) => $attendance->work_date->toDateString());
 
         // 1日1行で表示する（勤怠がない日は空欄）
         $formattedAttendanceRecords = collect(range(1, $date->daysInMonth))->map(function (int $day) use ($date, $attendances) {
