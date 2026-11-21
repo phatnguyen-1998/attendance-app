@@ -159,13 +159,7 @@ class AttendanceController extends Controller
             ]);
 
             // 開始・終了の両方が入力された休憩のみ保存する
-            foreach ($request->input('new_break_in', []) as $index => $breakIn) {
-                $breakOut = $request->input("new_break_out.$index");
-
-                if ($breakIn && $breakOut) {
-                    $stampRequest->proposalBreaks()->create(['break_in' => $breakIn, 'break_out' => $breakOut]);
-                }
-            }
+            $stampRequest->proposalBreaks()->createMany($request->breakTimes()->all());
         });
 
         return redirect()->route('attendance.show', $attendance->id);

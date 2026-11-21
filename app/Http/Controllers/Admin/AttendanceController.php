@@ -69,14 +69,7 @@ class AttendanceController extends Controller
 
             // 休憩は入力内容で置き換える（開始・終了の両方が入力された行のみ保存）
             $attendance->breakTimes()->delete();
-
-            foreach ($request->input('new_break_in', []) as $index => $breakIn) {
-                $breakOut = $request->input("new_break_out.$index");
-
-                if ($breakIn && $breakOut) {
-                    $attendance->breakTimes()->create(['break_in' => $breakIn, 'break_out' => $breakOut]);
-                }
-            }
+            $attendance->breakTimes()->createMany($request->breakTimes()->all());
         });
 
         return redirect()->route('attendance.show', $attendance->id);

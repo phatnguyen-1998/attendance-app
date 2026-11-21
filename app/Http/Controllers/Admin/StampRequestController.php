@@ -49,12 +49,11 @@ class StampRequestController extends Controller
 
                 // 休憩は申請内容で置き換える
                 $attendance->breakTimes()->delete();
-                foreach ($application->proposalBreaks as $break) {
-                    $attendance->breakTimes()->create([
-                        'break_in' => $break->break_in,
-                        'break_out' => $break->break_out,
-                    ]);
-                }
+                $attendance->breakTimes()->createMany(
+                    $application->proposalBreaks
+                        ->map(fn ($break) => ['break_in' => $break->break_in, 'break_out' => $break->break_out])
+                        ->all()
+                );
 
                 $application->update([
                     'status' => StampRequest::STATUS_APPROVED,

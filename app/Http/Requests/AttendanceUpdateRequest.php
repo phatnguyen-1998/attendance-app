@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 
 class AttendanceUpdateRequest extends FormRequest
@@ -58,5 +59,21 @@ class AttendanceUpdateRequest extends FormRequest
         $out = strtotime((string) $this->new_clock_out);
 
         return $in && $out && $in < $out;
+    }
+
+    /**
+     * 開始・終了の両方が入力された休憩のみを返す
+     *
+     * @return Collection<int, array{break_in: string, break_out: string}>
+     */
+    public function breakTimes(): Collection
+    {
+        return collect($this->input('new_break_in', []))
+            ->map(fn ($breakIn, $index) => [
+                'break_in' => $breakIn,
+                'break_out' => $this->input("new_break_out.$index"),
+            ])
+            ->filter(fn (array $break) => $break['break_in'] && $break['break_out'])
+            ->values();
     }
 }
