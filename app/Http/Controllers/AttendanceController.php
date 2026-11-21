@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 
 class AttendanceController extends Controller
 {
+    /** 打刻画面を表示する（現在の日時とステータスを渡す）（FN018・FN019） */
     public function index(Request $request): View
     {
         $now = now();
@@ -26,6 +27,11 @@ class AttendanceController extends Controller
         ]);
     }
 
+    /**
+     * 打刻処理（出勤・休憩入・休憩戻・退勤）を行う（FN020〜FN022）
+     *
+     * ステータスに合わない操作（例：勤務外での退勤）は何もしない。
+     */
     public function store(Request $request): RedirectResponse
     {
         $user = $request->user();
@@ -52,6 +58,7 @@ class AttendanceController extends Controller
         return redirect()->route('attendance.index');
     }
 
+    /** ログインユーザーの月次勤怠一覧を表示する。?date=YYYY-MM で月を指定（FN023・FN024） */
     public function list(Request $request): View
     {
         $month = $this->parseMonth($request->query('date'));
@@ -97,7 +104,14 @@ class AttendanceController extends Controller
         return $month->format('Y-m') === $value ? $month : today()->startOfMonth();
     }
 
-    public function show(Request $request, $id): View
+    /**
+     * 勤怠詳細を表示する（FN026）
+     *
+     * 管理者は管理者用の詳細（PG09）に委譲する。一般ユーザーは自分の勤怠のみ（他人の ID は 404）。
+     *
+     * @param  string  $id  勤怠ID
+     */
+    public function show(Request $request, string $id): View
     {
         // 管理者は管理者用の勤怠詳細（PG09）で処理する
         if ($request->user()->role === User::ROLE_ADMIN) {
@@ -137,7 +151,14 @@ class AttendanceController extends Controller
         ]);
     }
 
-    public function update(AttendanceUpdateRequest $request, $id): RedirectResponse
+    /**
+     * 勤怠の修正を行う（FN030）
+     *
+     * 管理者は直接修正、一般ユーザーは承認待ちの修正申請を作成する。承認待ちの申請がある間は何もしない。
+     *
+     * @param  string  $id  勤怠ID
+     */
+    public function update(AttendanceUpdateRequest $request, string $id): RedirectResponse
     {
         if ($request->user()->role === User::ROLE_ADMIN) {
             return app(AdminAttendanceController::class)->update($request, $id);
@@ -159,13 +180,8 @@ class AttendanceController extends Controller
             ]);
 
             // 開始・終了の両方が入力された休憩のみ保存する
-            foreach ($request->input('new_break_in', []) as $index => $breakIn) {
-                $breakOut = $request->input("new_break_out.$index");
+            $stampRequest->proposalBreaks()->createMany($request->breakTimes()->all());
 
-                if ($breakIn && $breakOut) {
-                    $stampRequest->proposalBreaks()->create(['break_in' => $breakIn, 'break_out' => $breakOut]);
-                }
-            }
         });
 
         return redirect()->route('attendance.show', $attendance->id);

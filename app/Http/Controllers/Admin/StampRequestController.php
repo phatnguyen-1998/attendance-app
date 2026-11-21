@@ -21,7 +21,7 @@ class StampRequestController extends Controller
     }
 
     /** 修正申請承認画面（PG13） */
-    public function show($attendance_correct_request_id): View
+    public function show(string $attendance_correct_request_id): View
     {
         $application = StampRequest::with(['user', 'AttendanceRecord', 'proposalBreaks'])
             ->findOrFail($attendance_correct_request_id);
@@ -31,7 +31,7 @@ class StampRequestController extends Controller
     }
 
     /** 承認：申請内容を勤怠に反映し、申請を承認済みにする（FN051） */
-    public function approve($attendance_correct_request_id): RedirectResponse
+    public function approve(string $attendance_correct_request_id): RedirectResponse
     {
         $application = StampRequest::with(['AttendanceRecord', 'proposalBreaks'])
             ->findOrFail($attendance_correct_request_id);
@@ -49,12 +49,11 @@ class StampRequestController extends Controller
 
                 // 休憩は申請内容で置き換える
                 $attendance->breakTimes()->delete();
-                foreach ($application->proposalBreaks as $break) {
-                    $attendance->breakTimes()->create([
-                        'break_in' => $break->break_in,
-                        'break_out' => $break->break_out,
-                    ]);
-                }
+                $attendance->breakTimes()->createMany(
+                    $application->proposalBreaks
+                        ->map(fn ($break) => ['break_in' => $break->break_in, 'break_out' => $break->break_out])
+                        ->all()
+                );
 
                 $application->update([
                     'status' => StampRequest::STATUS_APPROVED,

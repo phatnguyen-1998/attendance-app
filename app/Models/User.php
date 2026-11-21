@@ -55,6 +55,7 @@ class User extends Authenticatable
         return Attribute::get(fn () => $this->role === self::ROLE_ADMIN);
     }
 
+    /** 今日の勤怠から打刻ステータス（勤務外／出勤中／休憩中／退勤済）を返す */
     protected function attendanceStatus(): Attribute
     {
         return Attribute::get(function () {

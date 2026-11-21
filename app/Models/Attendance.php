@@ -34,6 +34,7 @@ class Attendance extends Model
         return $this->hasMany(StampRequest::class);
     }
 
+    /** 休憩時間の合計（H:i:s）。休憩がなければ null */
     protected function totalBreakTime(): Attribute
     {
         return Attribute::get(function () {
@@ -43,6 +44,7 @@ class Attendance extends Model
         })->shouldCache();
     }
 
+    /** 勤務時間の合計（H:i:s）。出勤・退勤のどちらかが未入力なら null。休憩を差し引く */
     protected function totalTime(): Attribute
     {
         return Attribute::get(function () {

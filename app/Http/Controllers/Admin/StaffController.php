@@ -11,6 +11,7 @@ use Illuminate\Support\Carbon;
 
 class StaffController extends Controller
 {
+    /** スタッフ一覧（管理者）。一般ユーザーのみ表示する（FN041） */
     public function index(): View
     {
         // 一般ユーザーのみ表示する（管理者は含めない）
@@ -19,7 +20,12 @@ class StaffController extends Controller
         return view('admin.staff-list', compact('users'));
     }
 
-    public function staff(Request $request, $id): View
+    /**
+     * スタッフ別の月次勤怠一覧を1日1行で表示する（FN043・FN044）
+     *
+     * 一般ユーザー以外・存在しない ID は 404。
+     */
+    public function staff(Request $request, string $id): View
     {
         // 一般ユーザーのみ対象（管理者・存在しない ID は 404）
         $user = User::where('role', User::ROLE_USER)->findOrFail($id);

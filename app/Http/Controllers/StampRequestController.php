@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 
 class StampRequestController extends Controller
 {
+    /** 申請一覧。管理者は全ユーザー分（PG12）、一般ユーザーは自分の申請（FN031・FN032） */
     public function index(Request $request): View
     {
         // 管理者は全ユーザーの申請一覧（PG12）を表示する
@@ -33,7 +34,8 @@ class StampRequestController extends Controller
         return view('user.user-application-list', compact('user', 'formattedApplications'));
     }
 
-    public function show(Request $request, $id): RedirectResponse
+    /** 申請の詳細リンクから、対象の勤怠詳細へリダイレクトする（FN033） */
+    public function show(Request $request, string $id): RedirectResponse
     {
         $application = $request->user()->stampRequests()->findOrFail($id);
 

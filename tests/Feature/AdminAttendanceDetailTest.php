@@ -54,7 +54,7 @@ class AdminAttendanceDetailTest extends TestCase
 
     private function submit(array $overrides = []): TestResponse
     {
-        $url = '/attendance/' . $this->attendance->id;
+        $url = '/attendance/'.$this->attendance->id;
 
         return $this->actingAs($this->admin)->from($url)->post($url, $this->validData($overrides));
     }
@@ -62,7 +62,7 @@ class AdminAttendanceDetailTest extends TestCase
     /** 詳細画面の内容が選択した勤怠情報と一致すること */
     public function test_勤怠詳細画面に表示されるデータが選択したものになっている(): void
     {
-        $this->actingAs($this->admin)->get('/attendance/' . $this->attendance->id)
+        $this->actingAs($this->admin)->get('/attendance/'.$this->attendance->id)
             ->assertOk()
             ->assertSee('value="テスト太郎"', false)
             ->assertSee('value="2026年"', false)
@@ -77,10 +77,10 @@ class AdminAttendanceDetailTest extends TestCase
     public function test_出勤時間が退勤時間より後になっている場合_エラーメッセージが表示される(): void
     {
         $this->submit(['new_clock_in' => '19:00', 'new_clock_out' => '18:00'])
-            ->assertRedirect('/attendance/' . $this->attendance->id)
+            ->assertRedirect('/attendance/'.$this->attendance->id)
             ->assertSessionHasErrors(['new_clock_out' => '出勤時間もしくは退勤時間が不適切な値です']);
 
-        $this->get('/attendance/' . $this->attendance->id)->assertSee('出勤時間もしくは退勤時間が不適切な値です');
+        $this->get('/attendance/'.$this->attendance->id)->assertSee('出勤時間もしくは退勤時間が不適切な値です');
     }
 
     public function test_休憩開始時間が退勤時間より後になっている場合_エラーメッセージが表示される(): void
@@ -106,7 +106,7 @@ class AdminAttendanceDetailTest extends TestCase
     /** 管理者の修正は申請を介さず、勤怠に直接反映されること */
     public function test_管理者の修正は勤怠に直接反映される(): void
     {
-        $this->submit()->assertRedirect('/attendance/' . $this->attendance->id)->assertSessionHasNoErrors();
+        $this->submit()->assertRedirect('/attendance/'.$this->attendance->id)->assertSessionHasNoErrors();
 
         $attendance = $this->attendance->fresh();
         $this->assertSame('09:30:00', $attendance->clock_in);
