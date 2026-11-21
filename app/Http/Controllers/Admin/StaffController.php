@@ -19,7 +19,7 @@ class StaffController extends Controller
         return view('admin.staff-list', compact('users'));
     }
 
-    public function staff(Request $request, $id): View
+    public function staff(Request $request, string $id): View
     {
         // 一般ユーザーのみ対象（管理者・存在しない ID は 404）
         $user = User::where('role', User::ROLE_USER)->findOrFail($id);

@@ -5,17 +5,19 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AdminLoginRequest;
 use App\Models\User;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AuthenticatedSessionController extends Controller
 {
-    public function create()
+    public function create(): View
     {
         return view('admin.admin-login');
     }
 
-    public function store(AdminLoginRequest $request)
+    public function store(AdminLoginRequest $request): RedirectResponse
     {
         $credentials = $request->validated();
 
@@ -29,7 +31,7 @@ class AuthenticatedSessionController extends Controller
         return back()->withErrors(['email' => 'ログイン情報が登録されていません'])->onlyInput('email');
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request): RedirectResponse
     {
         Auth::logout();
 

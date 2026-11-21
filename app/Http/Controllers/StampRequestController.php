@@ -33,7 +33,7 @@ class StampRequestController extends Controller
         return view('user.user-application-list', compact('user', 'formattedApplications'));
     }
 
-    public function show(Request $request, $id): RedirectResponse
+    public function show(Request $request, string $id): RedirectResponse
     {
         $application = $request->user()->stampRequests()->findOrFail($id);
 

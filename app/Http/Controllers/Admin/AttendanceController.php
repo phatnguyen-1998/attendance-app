@@ -31,7 +31,7 @@ class AttendanceController extends Controller
         ]);
     }
 
-    public function show(Request $request, $id): View
+    public function show(Request $request, string $id): View
     {
         $attendance = Attendance::with(['user', 'breakTimes'])->findOrFail($id);
 
@@ -56,7 +56,7 @@ class AttendanceController extends Controller
         return view('admin.admin-detail', compact('user', 'attendanceRecord'));
     }
 
-    public function update(AttendanceUpdateRequest $request, $id): RedirectResponse
+    public function update(AttendanceUpdateRequest $request, string $id): RedirectResponse
     {
         $attendance = Attendance::findOrFail($id);
 

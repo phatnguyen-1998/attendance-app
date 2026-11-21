@@ -97,7 +97,7 @@ class AttendanceController extends Controller
         return $month->format('Y-m') === $value ? $month : today()->startOfMonth();
     }
 
-    public function show(Request $request, $id): View
+    public function show(Request $request, string $id): View
     {
         // 管理者は管理者用の勤怠詳細（PG09）で処理する
         if ($request->user()->role === User::ROLE_ADMIN) {
@@ -137,7 +137,7 @@ class AttendanceController extends Controller
         ]);
     }
 
-    public function update(AttendanceUpdateRequest $request, $id): RedirectResponse
+    public function update(AttendanceUpdateRequest $request, string $id): RedirectResponse
     {
         if ($request->user()->role === User::ROLE_ADMIN) {
             return app(AdminAttendanceController::class)->update($request, $id);
