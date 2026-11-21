@@ -52,10 +52,10 @@ class User extends Authenticatable
 
     protected function adminStatus(): Attribute
     {
-        return Attribute::get(fn() => $this->role === self::ROLE_ADMIN);
+        return Attribute::get(fn () => $this->role === self::ROLE_ADMIN);
     }
-    /** 今日の勤怠から打刻ステータス（勤務外／出勤中／休憩中／退勤済）を返す */
 
+    /** 今日の勤怠から打刻ステータス（勤務外／出勤中／休憩中／退勤済）を返す */
     protected function attendanceStatus(): Attribute
     {
         return Attribute::get(function () {
@@ -64,7 +64,7 @@ class User extends Authenticatable
                 ->with('breakTimes')
                 ->first();
 
-            if (!$attendance || !$attendance->clock_in) {
+            if (! $attendance || ! $attendance->clock_in) {
                 return '勤務外';
             }
 

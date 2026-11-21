@@ -14,7 +14,8 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class AttendanceController extends Controller
-{/** 打刻画面を表示する（現在の日時とステータスを渡す）（FN018・FN019） */
+{
+    /** 打刻画面を表示する（現在の日時とステータスを渡す）（FN018・FN019） */
     public function index(Request $request): View
     {
         $now = now();
@@ -25,6 +26,7 @@ class AttendanceController extends Controller
             'formattedTime' => $now->format('H:i'),
         ]);
     }
+
     /**
      * 打刻処理（出勤・休憩入・休憩戻・退勤）を行う（FN020〜FN022）
      *
@@ -55,8 +57,8 @@ class AttendanceController extends Controller
 
         return redirect()->route('attendance.index');
     }
-    /** ログインユーザーの月次勤怠一覧を表示する。?date=YYYY-MM で月を指定（FN023・FN024） */
 
+    /** ログインユーザーの月次勤怠一覧を表示する。?date=YYYY-MM で月を指定（FN023・FN024） */
     public function list(Request $request): View
     {
         $month = $this->parseMonth($request->query('date'));
@@ -65,7 +67,7 @@ class AttendanceController extends Controller
             ->with('breakTimes')
             ->whereBetween('work_date', [$month->toDateString(), $month->copy()->endOfMonth()->toDateString()])
             ->get()
-            ->keyBy(fn($attendance) => $attendance->work_date->toDateString());
+            ->keyBy(fn ($attendance) => $attendance->work_date->toDateString());
 
         $records = collect(range(1, $month->daysInMonth))->map(function (int $day) use ($month, $attendances) {
             $date = $month->copy()->day($day);
@@ -101,6 +103,7 @@ class AttendanceController extends Controller
         // 2026-13 のようにあふれた値は不正として扱う
         return $month->format('Y-m') === $value ? $month : today()->startOfMonth();
     }
+
     /**
      * 勤怠詳細を表示する（FN026）
      *
@@ -126,7 +129,7 @@ class AttendanceController extends Controller
             ->first();
 
         $breaks = ($pending ? $pending->proposalBreaks : $attendance->breakTimes)
-            ->map(fn($break) => [
+            ->map(fn ($break) => [
                 'break_in' => substr($break->break_in, 0, 5),
                 'break_out' => $break->break_out ? substr($break->break_out, 0, 5) : '',
             ])
@@ -147,6 +150,7 @@ class AttendanceController extends Controller
             ],
         ]);
     }
+
     /**
      * 勤怠の修正を行う（FN030）
      *

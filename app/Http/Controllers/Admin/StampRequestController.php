@@ -51,10 +51,9 @@ class StampRequestController extends Controller
                 $attendance->breakTimes()->delete();
                 $attendance->breakTimes()->createMany(
                     $application->proposalBreaks
-                        ->map(fn($break) => ['break_in' => $break->break_in, 'break_out' => $break->break_out])
+                        ->map(fn ($break) => ['break_in' => $break->break_in, 'break_out' => $break->break_out])
                         ->all()
                 );
-
 
                 $application->update([
                     'status' => StampRequest::STATUS_APPROVED,

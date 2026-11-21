@@ -33,8 +33,8 @@ class Attendance extends Model
     {
         return $this->hasMany(StampRequest::class);
     }
-    /** 休憩時間の合計（H:i:s）。休憩がなければ null */
 
+    /** 休憩時間の合計（H:i:s）。休憩がなければ null */
     protected function totalBreakTime(): Attribute
     {
         return Attribute::get(function () {
@@ -43,12 +43,12 @@ class Attendance extends Model
             return $seconds > 0 ? gmdate('H:i:s', $seconds) : null;
         })->shouldCache();
     }
-    /** 勤務時間の合計（H:i:s）。出勤・退勤のどちらかが未入力なら null。休憩を差し引く */
 
+    /** 勤務時間の合計（H:i:s）。出勤・退勤のどちらかが未入力なら null。休憩を差し引く */
     protected function totalTime(): Attribute
     {
         return Attribute::get(function () {
-            if (!$this->clock_in || !$this->clock_out) {
+            if (! $this->clock_in || ! $this->clock_out) {
                 return null;
             }
 
@@ -62,13 +62,13 @@ class Attendance extends Model
     private function breakSeconds(): int
     {
         return $this->breakTimes
-            ->filter(fn($break) => $break->break_out)
-            ->sum(fn($break) => Carbon::parse($break->break_in)->diffInSeconds(Carbon::parse($break->break_out)));
+            ->filter(fn ($break) => $break->break_out)
+            ->sum(fn ($break) => Carbon::parse($break->break_in)->diffInSeconds(Carbon::parse($break->break_out)));
     }
 
     /** 提供Bladeの `$application->AttendanceRecord->date` に合わせた勤怠日（work_date） */
     protected function date(): Attribute
     {
-        return Attribute::get(fn() => $this->work_date);
+        return Attribute::get(fn () => $this->work_date);
     }
 }
