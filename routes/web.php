@@ -55,4 +55,5 @@ Route::middleware(['auth', 'admin'])->group(function () {
         ->name('stamp_correction_request.approve');
     Route::post('/stamp_correction_request/approve/{attendance_correct_request_id}', [AdminStampRequestController::class, 'approve'])
         ->name('stamp_correction_request.approve.store');
+    Route::post('/export', [StaffController::class, 'export'])->name('export');
 });
