@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AuthenticatedSessionController as AdminAuthentica
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\StampRequestController as AdminStampRequestController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StampRequestController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,6 +28,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
     Route::post('/attendance', [AttendanceController::class, 'store'])->name('attendance.store');
     Route::get('/attendance/list', [AttendanceController::class, 'list'])->name('attendance.list');
+    Route::get('/attendance/report', [ReportController::class, 'index'])->name('attendance.report');
     Route::get('/attendance/{id}', [AttendanceController::class, 'show'])->name('attendance.show');
     Route::post('/attendance/{id}', [AttendanceController::class, 'update'])->name('attendance.update');
     Route::get('/application/{id}', [StampRequestController::class, 'show'])->name('application.show');
