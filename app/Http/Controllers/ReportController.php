@@ -8,11 +8,19 @@ use Illuminate\Support\Facades\Auth;
 
 class ReportController extends Controller
 {
+    /** 始業・終業時刻。遅刻・早退の判定基準（FN056） */
+    private const WORK_START = '09:00:00';
+
+    private const WORK_END = '18:00:00';
+
+    /** 長時間労働の基準。1日10時間（600分）を超えた日 */
+    private const LONG_WORK_MINUTES = 600;
+
     /** 1日の所定労働分数。これを超えた分を残業とする（FN053） */
     private const STANDARD_WORK_MINUTES = 480;
 
     /**
-     * マイ勤怠レポートを表示する（FN052・FN053）
+     * マイ勤怠レポートを表示する（FN052〜FN054・FN056）
      *
      * 今月を含む直近6ヶ月の勤怠から、総労働時間・総残業時間・1日あたりの平均労働時間を集計する。
      */
@@ -36,10 +44,36 @@ class ReportController extends Controller
             'total_overtime_minutes' => $workMinutes->sum(fn (int $minutes) => max($minutes - self::STANDARD_WORK_MINUTES, 0)),
             'avg_work_minutes' => $workMinutes->isEmpty() ? 0 : (int) round($workMinutes->avg()),
         ];
+        // 労働時間が計算できる勤怠を月（Y-m）ごとにまとめる
+        $byMonth = $attendances
+            ->filter(fn (Attendance $attendance) => $this->workMinutes($attendance) !== null)
+            ->groupBy(fn (Attendance $attendance) => $attendance->work_date->format('Y-m'));
 
-        // 月次推移・異常検知は次のステップで実装する
-        $monthlyTrend = [];
-        $anomalies = ['late_count' => 0, 'early_leave_count' => 0, 'long_work_count' => 0];
+        // 6ヶ月分を古い順に並べる。勤怠がない月は 0 にする
+        $monthlyTrend = collect(range(0, 5))->map(function (int $i) use ($from, $byMonth) {
+            $month = $from->copy()->addMonths($i)->format('Y-m');
+            $minutes = $byMonth->get($month, collect())
+                ->map(fn (Attendance $attendance) => $this->workMinutes($attendance));
+
+            return [
+                'month' => $month,
+                'work_minutes' => $minutes->sum(),
+                'overtime_minutes' => $minutes->sum(fn (int $m) => max($m - self::STANDARD_WORK_MINUTES, 0)),
+            ];
+        })->all();
+        $thisMonth = $attendances->filter(fn (Attendance $attendance) => $attendance->work_date->gte(today()->startOfMonth()));
+
+        $anomalies = [
+            'late_count' => $thisMonth
+                ->filter(fn (Attendance $attendance) => $attendance->clock_in && $attendance->clock_in > self::WORK_START)
+                ->count(),
+            'early_leave_count' => $thisMonth
+                ->filter(fn (Attendance $attendance) => $attendance->clock_out && $attendance->clock_out < self::WORK_END)
+                ->count(),
+            'long_work_count' => $thisMonth
+                ->filter(fn (Attendance $attendance) => ($this->workMinutes($attendance) ?? 0) > self::LONG_WORK_MINUTES)
+                ->count(),
+        ];
 
         return view('reports.index', compact('summary', 'monthlyTrend', 'anomalies'));
     }
