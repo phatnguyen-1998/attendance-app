@@ -56,6 +56,8 @@ class AttendanceRecordController extends Controller
     /** 勤怠を更新する（FN061）。送信された項目のみ更新する */
     public function update(UpdateAttendanceRecordRequest $request, Attendance $attendanceRecord): AttendanceRecordResource
     {
+        $this->authorize('update', $attendanceRecord);
+
         $attendanceRecord->update($request->attendanceAttributes());
 
         return new AttendanceRecordResource($attendanceRecord->load(['user', 'breakTimes']));
@@ -64,6 +66,8 @@ class AttendanceRecordController extends Controller
     /** 勤怠を削除する（FN062）。休憩と修正申請は外部キーで連鎖削除される */
     public function destroy(Attendance $attendanceRecord): Response
     {
+        $this->authorize('delete', $attendanceRecord);
+
         $attendanceRecord->delete();
 
         return response()->noContent();
