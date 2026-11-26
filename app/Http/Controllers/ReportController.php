@@ -58,7 +58,7 @@ class ReportController extends Controller
             return [
                 'month' => $month,
                 'work_minutes' => $minutes->sum(),
-                'overtime_minutes' => $minutes->sum(fn (int $m) => max($m - self::STANDARD_WORK_MINUTES, 0)),
+                'overtime_minutes' => $minutes->sum(fn (int $workedMinutes) => max($workedMinutes - self::STANDARD_WORK_MINUTES, 0)),
             ];
         })->all();
         $thisMonth = $attendances->filter(fn (Attendance $attendance) => $attendance->work_date->gte(today()->startOfMonth()));

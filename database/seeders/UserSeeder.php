@@ -33,6 +33,5 @@ class UserSeeder extends Seeder
             $user->email_verified_at = now();
             $user->save();
         }
-
     }
 }

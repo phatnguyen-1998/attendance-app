@@ -181,7 +181,6 @@ class AttendanceController extends Controller
 
             // 開始・終了の両方が入力された休憩のみ保存する
             $stampRequest->proposalBreaks()->createMany($request->breakTimes()->all());
-
         });
 
         return redirect()->route('attendance.show', $attendance->id);

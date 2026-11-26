@@ -3,9 +3,6 @@
 namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
-use App\Actions\Fortify\ResetUserPassword;
-use App\Actions\Fortify\UpdateUserPassword;
-use App\Actions\Fortify\UpdateUserProfileInformation;
 use App\Http\Requests\LoginRequest;
 use App\Http\Responses\LogoutResponse;
 use App\Models\User;
@@ -28,7 +25,6 @@ class FortifyServiceProvider extends ServiceProvider
     {
         $this->app->bind(FortifyLoginRequest::class, LoginRequest::class);
         $this->app->singleton(LogoutResponseContract::class, LogoutResponse::class);
-
     }
 
     /**
@@ -40,9 +36,6 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::registerView(fn () => view('user.register'));
         Fortify::loginView(fn () => view('user.user-login'));
         Fortify::verifyEmailView(fn () => view('auth.verify-email'));
-        Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
-        Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
-        Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::authenticateUsing(function (Request $request) {
             $user = User::where('email', $request->email)->first();
 
