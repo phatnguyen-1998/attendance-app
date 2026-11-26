@@ -12,7 +12,7 @@ Docker が必要です。Windows の場合は WSL2 上で実行してくださ�
 1. リポジトリを取得（応用版は `advanced` ブランチ）
 
     ```bash
-    git clone -b advanced git@github.com:phatnguyen-1998/attendance-app.git
+    git clone -b advanced https://github.com/phatnguyen-1998/attendance-app.git
     cd attendance-app
     ```
 
