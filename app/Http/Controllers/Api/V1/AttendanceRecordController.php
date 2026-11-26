@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\IndexAttendanceRecordRequest;
+use App\Http\Requests\Api\V1\StoreAttendanceRecordRequest;
+use App\Http\Requests\Api\V1\UpdateAttendanceRecordRequest;
 use App\Http\Resources\AttendanceRecordResource;
 use App\Models\Attendance;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 
 class AttendanceRecordController extends Controller
@@ -32,9 +35,14 @@ class AttendanceRecordController extends Controller
         return AttendanceRecordResource::collection($records);
     }
 
-    public function store(Request $request)
+    /** 勤怠を登録する（FN060） */
+    public function store(StoreAttendanceRecordRequest $request): JsonResponse
     {
-        //
+        $attendance = $request->user()->attendances()->create($request->attendanceAttributes());
+
+        return (new AttendanceRecordResource($attendance->load(['user', 'breakTimes'])))
+            ->response()
+            ->setStatusCode(201);
     }
 
     /** 勤怠詳細を取得する（FN059）。ユーザー・休憩・修正申請を含める */
@@ -45,19 +53,19 @@ class AttendanceRecordController extends Controller
         );
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    /** 勤怠を更新する（FN061）。送信された項目のみ更新する */
+    public function update(UpdateAttendanceRecordRequest $request, Attendance $attendanceRecord): AttendanceRecordResource
     {
-        //
+        $attendanceRecord->update($request->attendanceAttributes());
+
+        return new AttendanceRecordResource($attendanceRecord->load(['user', 'breakTimes']));
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    /** 勤怠を削除する（FN062）。休憩と修正申請は外部キーで連鎖削除される */
+    public function destroy(Attendance $attendanceRecord): Response
     {
-        //
+        $attendanceRecord->delete();
+
+        return response()->noContent();
     }
 }
