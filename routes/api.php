@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AttendanceRecordController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,9 +14,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
 Route::prefix('v1')->group(function () {
     // 読み取り系：認証不要
     Route::apiResource('attendance-records', AttendanceRecordController::class)

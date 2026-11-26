@@ -17,6 +17,9 @@ class AuthServiceProvider extends ServiceProvider
         Attendance::class => AttendanceRecordPolicy::class,
     ];
 
+    /**
+     * Register any authentication / authorization services.
+     */
     public function boot(): void
     {
         //

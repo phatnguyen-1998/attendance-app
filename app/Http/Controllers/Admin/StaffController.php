@@ -16,7 +16,6 @@ class StaffController extends Controller
     /** スタッフ一覧（管理者）。一般ユーザーのみ表示する（FN041） */
     public function index(): View
     {
-        // 一般ユーザーのみ表示する（管理者は含めない）
         $users = User::where('role', User::ROLE_USER)->orderBy('id')->get();
 
         return view('admin.staff-list', compact('users'));
@@ -49,7 +48,6 @@ class StaffController extends Controller
                 'total_time' => $attendance?->total_time,
             ];
         });
-
     }
 
     /**
@@ -66,8 +64,6 @@ class StaffController extends Controller
         $previousMonth = $date->copy()->subMonth()->format('Y-m');
         $nextMonth = $date->copy()->addMonth()->format('Y-m');
         $formattedAttendanceRecords = $this->monthlyRecords($user, $date);
-
-        // 1日1行で表示する（勤怠がない日は空欄）
 
         return view('admin.staff-attendance-list', compact('user', 'date', 'previousMonth', 'nextMonth', 'formattedAttendanceRecords'));
     }

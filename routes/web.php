@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\StampRequestController as AdminStampRequestContro
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StampRequestController;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,9 +21,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// トップページは権限ごとの勤怠画面へ（未ログインはログイン画面へ）
+Route::get('/', fn () => redirect()->route(
+    auth()->user()?->role === User::ROLE_ADMIN ? 'admin.attendance.list' : 'attendance.index'
+));
 // 一般ユーザー
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
@@ -48,7 +50,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/attendance/staff/{id}', [StaffController::class, 'staff'])->name('attendance.staff');
         Route::get('/staff/list', [StaffController::class, 'index'])->name('staff.list');
         Route::post('/logout', [AdminAuthenticatedSessionController::class, 'destroy'])->name('logout');
-
     });
 });
 
